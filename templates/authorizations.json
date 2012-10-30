@@ -1,0 +1,6 @@
+{
+  "scopes": [
+    "public_repo"
+  ],
+  "note": "Rerun github module as ${LOGNAME}@${HOSTNAME}"
+}
