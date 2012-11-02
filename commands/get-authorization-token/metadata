@@ -3,3 +3,4 @@
 NAME=get-authorization-token
 DESCRIPTION="Get an authorization token to access the API"
 
+OPTIONS="url"

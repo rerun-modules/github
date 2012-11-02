@@ -3,3 +3,4 @@
 NAME=list-downloads
 DESCRIPTION="List downloads for a repository"
 
+OPTIONS="owner repository url"

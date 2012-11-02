@@ -3,3 +3,4 @@
 NAME=create-download
 DESCRIPTION="Create a new download"
 
+OPTIONS="content-type description file owner repository url"
