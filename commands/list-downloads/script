@@ -35,7 +35,7 @@ then
 fi
 
 # Display the names and identifiers.
-curl -sf ${URL}/repos/${OWNER}/${REPOSITORY}/downloads | jq -r '.[] | .name + ":" + (.id | tostring )'
+cat ${RESPONSE} | jq -r '.[] | .name + ":" + (.id | tostring )'
 
 rm -f ${RESPONSE}
 
