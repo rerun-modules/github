@@ -3,4 +3,4 @@
 NAME=delete-download
 DESCRIPTION="Delete a download"
 
-OPTIONS="file owner repository url"
+OPTIONS="file owner repository url force"
