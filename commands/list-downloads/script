@@ -23,7 +23,21 @@ set -e -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-curl -sf ${URL}/repos/${OWNER}/${REPOSITORY}/downloads | jq -r '.[] | .name + " (id=" + (.id | tostring ) + ")"'
+RESPONSE=$(mktemp)
+
+# List the downloads.
+curl -s ${URL}/repos/${OWNER}/${REPOSITORY}/downloads > ${RESPONSE}
+
+# Check for an API call error.
+if [[ $(cat ${RESPONSE} | jq -r '.[]') = "Not Found" ]]
+then
+  rerun_die "either the owner or the repository was not found"
+fi
+
+# Display the names and identifiers.
+curl -sf ${URL}/repos/${OWNER}/${REPOSITORY}/downloads | jq -r '.[] | .name + ":" + (.id | tostring )'
+
+rm -f ${RESPONSE}
 
 exit $?
 
