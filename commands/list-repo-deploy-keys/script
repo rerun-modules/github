@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+#/ command: github:list-repo-deploy-keys: "List repository deploy keys"
+#
+#/ usage: rerun github:list-repo-deploy-keys  --url <https://api.github.com>  --owner <>  --repository <> 
+#
+#/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
+#/ option variables: OWNER REPOSITORY URL URL OWNER REPOSITORY
+
+# Read module function library.
+. $RERUN_MODULE_DIR/lib/functions.sh || { 
+  echo >&2 "Failed loading function library." ; exit 1 ; 
+}
+
+# Error handling
+# ---------------
+# * Trap calls `rerun_die` with standard message.
+# * Exit upon command errors or accessing unset variables.
+#   * See [set](http://ss64.com/bash/set.html)
+trap 'rerun_die "*** command failed: github:list-repo-deploy-keys. ***"' ERR
+set -o nounset -o pipefail
+
+# Parse the command options.
+[[ -r $RERUN_MODULE_DIR/commands/list-repo-deploy-keys/options.sh ]] && {
+    . $RERUN_MODULE_DIR/commands/list-repo-deploy-keys/options.sh || rerun_die "Failed loading options parser."
+    rerun_options_parse "$@"
+}
+
+
+# ------------------------------
+# Your implementation goes here.
+# ------------------------------
+
+[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-t
+oken\"."
+
+RESPONSE=$(mktemp)
+TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
+
+# Get the list of repository deploy keys.
+curl -s ${URL}/repos/${OWNER}/${REPOSITORY}/keys?access_token=${TOKEN} > ${RESPONSE}
+
+# Check for an API call error.
+if [[ $(cat ${RESPONSE} | jq -r '.[]') = "Not Found" ]]
+then
+  rerun_die "either the owner or the repository was not found"
+fi
+
+# Display the titles and identifiers.
+cat ${RESPONSE} | jq -r '.[] | .title + ":" + (.id | tostring)'
+
+rm -f ${RESPONSE}
+
+exit $?
+
+# Done

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+#/ command: github:create-repo-deploy-key: "Create a repository deploy key"
+#
+#/ usage: rerun github:create-repo-deploy-key  --url <https://api.github.com>  --owner <>  --repository <> [ --title <${USER}@${HOSTNAME}>] [ --key-file <$HOME/.ssh/id_dsa.pub>]
+#
+#/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
+#/ option variables: URL OWNER REPOSITORY TITLE KEY_FILE TITLE KEY_FILE
+
+# Read module function library.
+. $RERUN_MODULE_DIR/lib/functions.sh || { 
+  echo >&2 "Failed loading function library." ; exit 1 ; 
+}
+
+# Error handling
+# ---------------
+# * Trap calls `rerun_die` with standard message.
+# * Exit upon command errors or accessing unset variables.
+#   * See [set](http://ss64.com/bash/set.html)
+trap 'rerun_die "*** command failed: github:create-repo-deploy-key. ***"' ERR
+set -o nounset -o pipefail
+
+# Parse the command options.
+[[ -r $RERUN_MODULE_DIR/commands/create-repo-deploy-key/options.sh ]] && {
+    . $RERUN_MODULE_DIR/commands/create-repo-deploy-key/options.sh || rerun_die "Failed loading options parser."
+    rerun_options_parse "$@"
+}
+
+
+# ------------------------------
+# Your implementation goes here.
+# ------------------------------
+
+[[ -e $KEY_FILE ]] || rerun_die "\"$KEY_FILE\": no such file or directory"
+[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-token\"."
+
+CONTENT=$(mktemp)
+RESPONSE=$(mktemp)
+
+echo "{
+  \"title\": \"$TITLE\",
+  \"key\": \"$(cat $KEY_FILE)\"
+}" > ${CONTENT}
+
+TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
+
+curl -sK - > ${RESPONSE} <<!
+-X POST
+-d @${CONTENT}
+--url ${URL}/repos/${OWNER}/${REPOSITORY}/keys?access_token=${TOKEN}
+!
+
+# Check for an error.
+if [[ $(cat ${RESPONSE} | jq -r '.message') != "null" ]]
+then
+  rerun_die "$(cat ${RESPONSE} | jq -r '.errors[] | .message')"
+fi
+
+# Show the deploy key's identifier from the response data.
+cat ${RESPONSE} | jq -r '.id'
+
+# rm -f ${CONTENT} ${RESPONSE}
+
+exit $?
+
+# Done

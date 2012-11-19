@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+#/ command: github:delete-repo-deploy-keys: "Delete repository deploy key(s) matching the specified title"
+#
+#/ usage: rerun github:delete-repo-deploy-keys  --url <https://api.github.com>  --owner <>  --repository <> [ --title <$USER@$HOSTNAME>] 
+#
+#/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
+#/ option variables: URL OWNER REPOSITORY TITLE
+
+# Read module function library.
+. $RERUN_MODULE_DIR/lib/functions.sh || { 
+  echo >&2 "Failed loading function library." ; exit 1 ; 
+}
+
+# Error handling
+# ---------------
+# * Trap calls `rerun_die` with standard message.
+# * Exit upon command errors or accessing unset variables.
+#   * See [set](http://ss64.com/bash/set.html)
+trap 'rerun_die $? "*** command failed: github:delete-repo-deploy-keys. ***"' ERR
+set -o nounset -o pipefail
+
+# Parse the command options.
+[[ -r $RERUN_MODULE_DIR/commands/delete-repo-deploy-keys/options.sh ]] && {
+    . $RERUN_MODULE_DIR/commands/delete-repo-deploy-keys/options.sh || rerun_die "Failed loading options parser."
+    rerun_options_parse "$@"
+}
+
+
+# ------------------------------
+# Your implementation goes here.
+# ------------------------------
+
+# Get the user's API authorization key.
+[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-token\"."
+TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
+
+# Run through the list of matching titles.
+for ID in $(rerun github:list-repo-deploy-keys --owner ${OWNER} --repository ${REPOSITORY} | grep "^$TITLE:" | cut -d: -f2)
+do
+  RESPONSE=$(mktemp)
+
+  # Delete the repository deploy key by identifier.
+  curl -sK - > ${RESPONSE} <<!
+-X DELETE
+--url ${URL}/repos/${OWNER}/${REPOSITORY}/keys/${ID}?access_token=${TOKEN}
+!
+
+  # Check for an API call error.
+  [[ -s ${RESPONSE} ]] && rerun_die "$(cat ${RESPONSE} | jq -r '.errors[] | .message')"
+
+  echo "deleted $ID"
+
+  rm -f ${RESPONSE}
+done
+
+exit $?
+
+# Done
