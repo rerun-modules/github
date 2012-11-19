@@ -19,5 +19,5 @@ rerun() {
 describe "list-downloads"
 
 it_runs_without_arguments() {
-    rerun github:list-downloads -o rerun-modules -r github
+    rerun github:list-downloads --owner rerun-modules --repository github
 }
