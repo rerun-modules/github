@@ -44,9 +44,9 @@ fi
 # Display the names and identifiers.
 if [[ $LATEST = "false" ]]
 then
-  cat ${RESPONSE} | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3
+  (cat ${RESPONSE} | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3)
 else
-  cat ${RESPONSE} | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3 | tail -1
+  (cat ${RESPONSE} | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3 | tail -1)
 fi
 
 rm -f ${RESPONSE}
