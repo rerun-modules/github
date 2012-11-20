@@ -2,10 +2,10 @@
 #
 #/ command: github:list-repo-deploy-keys: "List repository deploy keys"
 #
-#/ usage: rerun github:list-repo-deploy-keys  --url <https://api.github.com>  --owner <>  --repository <> 
+#/ usage: rerun github:list-repo-deploy-keys [ --url <https://api.github.com>]  --owner <>  --repository <> [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: OWNER REPOSITORY URL URL OWNER REPOSITORY
+#/ option variables: URL OWNER REPOSITORY API_URL AUTHORIZATION_FILE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
@@ -31,25 +31,7 @@ set -o nounset -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-t
-oken\"."
-
-RESPONSE=$(mktemp)
-TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
-
-# Get the list of repository deploy keys.
-curl -s ${URL}/repos/${OWNER}/${REPOSITORY}/keys?access_token=${TOKEN} > ${RESPONSE}
-
-# Check for an API call error.
-if [[ $(cat ${RESPONSE} | jq -r '.[]') = "Not Found" ]]
-then
-  rerun_die "either the owner or the repository was not found"
-fi
-
-# Display the titles and identifiers.
-cat ${RESPONSE} | jq -r '.[] | .title + ":" + (.id | tostring)'
-
-rm -f ${RESPONSE}
+githubCurlAPI ${AUTHORIZATION_FILE} ${API_URL} GET /repos/${OWNER}/${REPOSITORY}/keys | jq -r '.response | .[] | .title + ":" + (.id | tostring)'
 
 exit $?
 
