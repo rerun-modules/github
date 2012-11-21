@@ -2,10 +2,10 @@
 #
 #/ command: github:create-download: "Create a new download"
 #
-#/ usage: rerun github:create-download [ --content-type <application/x-rpm>] [ --description|-d <>]  --file <>  --owner <>  --repository <> [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] 
+#/ usage: rerun github:create-download [ --content-type <application/x-rpm>] [ --description|-d <>]  --file <>  --owner <>  --repository <> [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] [ --force <false>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: CONTENT_TYPE DESCRIPTION FILE OWNER REPOSITORY AUTHORIZATION_FILE API_URL
+#/ option variables: CONTENT_TYPE DESCRIPTION FILE OWNER REPOSITORY AUTHORIZATION_FILE API_URL FORCE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
@@ -32,6 +32,12 @@ set -o nounset -o pipefail
 
 # Prepare the contents to post.
 FILENAME=$(basename $FILE)
+
+# Potentially delete an existing download in order to force the create to work.
+if [[ $FORCE = "true" ]]
+then
+  rerun github:delete-download --owner ${OWNER} --repository ${REPOSITORY} --file ${FILE} --force true
+fi
 
 if [[ -z $DESCRIPTION ]]
 then
