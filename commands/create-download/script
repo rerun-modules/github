@@ -36,7 +36,7 @@ FILENAME=$(basename $FILE)
 # Potentially delete an existing download in order to force the create to work.
 if [[ $FORCE = "true" ]]
 then
-  rerun github:delete-download --owner ${OWNER} --repository ${REPOSITORY} --file ${FILE} --force true
+  rerun github:delete-download --owner ${OWNER} --repository ${REPOSITORY} --file ${FILENAME} --force true
 fi
 
 if [[ -z $DESCRIPTION ]]
