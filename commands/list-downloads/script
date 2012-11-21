@@ -2,10 +2,10 @@
 #
 #/ command: github:list-downloads: "List downloads for a repository"
 #
-#/ usage: rerun github:list-downloads  --owner <>  --repository <> [ --url <https://api.github.com>] [ --content-type <application/x-rpm>] [ --latest <false>] 
+#/ usage: rerun github:list-downloads  --owner <>  --repository <> [ --content-type <application/x-rpm>] [ --latest <false>] [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: OWNER REPOSITORY URL CONTENT_TYPE LATEST
+#/ option variables: OWNER REPOSITORY CONTENT_TYPE LATEST API_URL AUTHORIZATION_FILE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || {
@@ -30,26 +30,15 @@ set -o nounset -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-RESPONSE=$(mktemp)
-
-# List the downloads.
-curl -s ${URL}/repos/${OWNER}/${REPOSITORY}/downloads > ${RESPONSE}
-
-# Check for an API call error.
-if [[ $(cat ${RESPONSE} | jq -r '.[]') = "Not Found" ]]
-then
-  rerun_die "either the owner or the repository was not found"
-fi
-
 # Display the names and identifiers.
 if [[ $LATEST = "false" ]]
 then
-  (cat ${RESPONSE} | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3)
+  FILTER="cat"
 else
-  (cat ${RESPONSE} | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3 | tail -1)
+  FILTER="tail -1"
 fi
 
-rm -f ${RESPONSE}
+curl_github_api ${AUTHORIZATION_FILE} ${API_URL} GET /repos/${OWNER}/${REPOSITORY}/downloads | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3 | ${FILTER}
 
 exit $?
 

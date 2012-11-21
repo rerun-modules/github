@@ -2,10 +2,10 @@
 #
 #/ command: github:create-repo-deploy-key: "Create a repository deploy key"
 #
-#/ usage: rerun github:create-repo-deploy-key  --url <https://api.github.com>  --owner <>  --repository <> [ --title <${USER}@${HOSTNAME}>] [ --key-file <$HOME/.ssh/id_dsa.pub>]
+#/ usage: rerun github:create-repo-deploy-key  --owner <>  --repository <> [ --title <${USER}@${HOSTNAME}>] [ --key-file <$HOME/.ssh/id_dsa.pub>] [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: URL OWNER REPOSITORY TITLE KEY_FILE TITLE KEY_FILE
+#/ option variables: OWNER REPOSITORY TITLE KEY_FILE API_URL AUTHORIZATION_FILE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
@@ -31,35 +31,20 @@ set -o nounset -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-[[ -e $KEY_FILE ]] || rerun_die "\"$KEY_FILE\": no such file or directory"
-[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-token\"."
-
+# Prepare the content to post.
 CONTENT=$(mktemp)
-RESPONSE=$(mktemp)
 
 echo "{
   \"title\": \"$TITLE\",
   \"key\": \"$(cat $KEY_FILE)\"
 }" > ${CONTENT}
 
-TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
+# Create the key.
+ID=$(curl_github_api ${AUTHORIZATION_FILE} ${API_URL} POST /repos/${OWNER}/${REPOSITORY}/keys ${CONTENT} | jq -r '.id')
+echo "created $ID"
 
-curl -sK - > ${RESPONSE} <<!
--X POST
--d @${CONTENT}
---url ${URL}/repos/${OWNER}/${REPOSITORY}/keys?access_token=${TOKEN}
-!
-
-# Check for an error.
-if [[ $(cat ${RESPONSE} | jq -r '.message') != "null" ]]
-then
-  rerun_die "$(cat ${RESPONSE} | jq -r '.errors[] | .message')"
-fi
-
-# Show the deploy key's identifier from the response data.
-cat ${RESPONSE} | jq -r '.id'
-
-# rm -f ${CONTENT} ${RESPONSE}
+# Cleanup.
+rm -f ${CONTENT}
 
 exit $?
 

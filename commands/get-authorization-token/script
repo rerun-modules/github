@@ -1,48 +1,56 @@
 #!/usr/bin/env bash
 #
-#/ command: github:get-authorization-token: ""Get an authorization token to access the API""
+#/ command: github:get-authorization-token: "Get an authorization token to access the API"
 #
-#/ usage: rerun github:get-authorization-token [ --url|-u <https://api.github.com>] 
+#/ usage: rerun github:get-authorization-token [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
 #
-#/ variables: URL
+#/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
+#/ option variables: API_URL AUTHORIZATION_FILE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
-  echo >&2 "Failed loading function library" ; exit 1 ; 
+  echo >&2 "Failed loading function library." ; exit 1 ; 
 }
+
+# Error handling
+# ---------------
+# * Trap calls `rerun_die` with standard message.
+# * Exit upon command errors or accessing unset variables.
+#   * See [set](http://ss64.com/bash/set.html)
+trap 'rerun_die "*** command failed: github:get-authorization-token. ***"' ERR
+set -o nounset -o pipefail
 
 # Parse the command options.
-[ -r $RERUN_MODULE_DIR/commands/get-authorization-token/options.sh ] && {
-  . $RERUN_MODULE_DIR/commands/get-authorization-token/options.sh || exit 2 ;
+[[ -r $RERUN_MODULE_DIR/commands/get-authorization-token/options.sh ]] && {
+    . $RERUN_MODULE_DIR/commands/get-authorization-token/options.sh || rerun_die "Failed loading options parser."
+    rerun_options_parse "$@"
 }
-
-# Exit immediately upon non-zero exit. See [set](http://ss64.com/bash/set.html)
-set -e -o pipefail
 
 # ------------------------------
 # Your implementation goes here.
 # ------------------------------
 
+# Get the credentials interactively.
 read -rp "username: " USERNAME
 read -rsp "password: " PASSWORD
 echo
 
-mkdir -p $HOME/.rerun
+# Setup the authorization file's directory, if necessary.
+if [[ -n $(dirname ${AUTHORIZATION_FILE}) ]]
+then
+  mkdir -p $(dirname ${AUTHORIZATION_FILE})
+fi
 
+touch ${AUTHORIZATION_FILE}
+chmod 600 ${AUTHORIZATION_FILE}
+
+# Prepare the content to post.
 CONTENT=$(mktemp)
 sed -e "s/\${LOGNAME}/${LOGNAME}/" -e "s/\${HOSTNAME}/${HOSTNAME}/" $RERUN_MODULE_DIR/templates/authorizations.json > ${CONTENT}
 
-touch $HOME/.rerun/github.authorization
-chmod 600 $HOME/.rerun/github.authorization
+curl_github_api ${AUTHORIZATION_FILE} ${API_URL} AUTH /authorizations ${CONTENT} ${USERNAME} ${PASSWORD} > ${AUTHORIZATION_FILE}
 
-curl -sfK - > $HOME/.rerun/github.authorization <<!
--f
--X POST
--u ${USERNAME}:${PASSWORD}
--d @${CONTENT}
---url $URL/authorizations <<!
-!
-
+# Cleanup.
 rm -f ${CONTENT}
 
 exit $?

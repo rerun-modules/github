@@ -2,10 +2,10 @@
 #
 #/ command: github:delete-repo-deploy-keys: "Delete repository deploy key(s) matching the specified title"
 #
-#/ usage: rerun github:delete-repo-deploy-keys  --url <https://api.github.com>  --owner <>  --repository <> [ --title <$USER@$HOSTNAME>] 
+#/ usage: rerun github:delete-repo-deploy-keys  --owner <>  --repository <> [ --title <${USER}@${HOSTNAME}>] [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: URL OWNER REPOSITORY TITLE
+#/ option variables: OWNER REPOSITORY TITLE API_URL AUTHORIZATION_FILE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
@@ -31,27 +31,11 @@ set -o nounset -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-# Get the user's API authorization key.
-[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-token\"."
-TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
-
 # Run through the list of matching titles.
 for ID in $(rerun github:list-repo-deploy-keys --owner ${OWNER} --repository ${REPOSITORY} | grep "^$TITLE:" | cut -d: -f2)
 do
-  RESPONSE=$(mktemp)
-
-  # Delete the repository deploy key by identifier.
-  curl -sK - > ${RESPONSE} <<!
--X DELETE
---url ${URL}/repos/${OWNER}/${REPOSITORY}/keys/${ID}?access_token=${TOKEN}
-!
-
-  # Check for an API call error.
-  [[ -s ${RESPONSE} ]] && rerun_die "$(cat ${RESPONSE} | jq -r '.errors[] | .message')"
-
+  curl_github_api ${AUTHORIZATION_FILE} ${API_URL} DELETE /repos/${OWNER}/${REPOSITORY}/keys/${ID}
   echo "deleted $ID"
-
-  rm -f ${RESPONSE}
 done
 
 exit $?

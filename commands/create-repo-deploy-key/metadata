@@ -3,4 +3,4 @@
 # Sun Nov 18 09:00:13 PST 2012
 NAME=create-repo-deploy-key
 DESCRIPTION="Create a repository deploy key"
-OPTIONS="url owner repository title key-file"
+OPTIONS="owner repository title key-file api-url authorization-file"

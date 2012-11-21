@@ -2,10 +2,10 @@
 #
 #/ command: github:delete-download: "Delete a download"
 #
-#/ usage: rerun github:delete-download  --file|-f <>  --owner <>  --repository <> [ --url <https://api.github.com>] [ --force <false>] 
+#/ usage: rerun github:delete-download  --file <>  --owner <>  --repository <> [ --force <false>] [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: FILE OWNER REPOSITORY URL FORCE FORCE
+#/ option variables: FILE OWNER REPOSITORY FORCE AUTHORIZATION_FILE API_URL
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || {
@@ -42,15 +42,8 @@ fi
 
 ID=$(echo $DOWNLOAD | cut -d: -f3)
 
-# Get the user's API authorization key.
-[[ -e ~/.rerun/github.authorization ]] || rerun_die "\"~/.rerun/github.authorization\": no such file or directory. use \"rerun github:get-authorization-token\"."
-TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
-
-# Delete the download file.
-curl -sfK - <<!
--X DELETE
---url ${URL}/repos/${OWNER}/${REPOSITORY}/downloads/${ID}?access_token=${TOKEN}
-!
+curl_github_api ${AUTHORIZATION_FILE} ${API_URL} DELETE /repos/${OWNER}/${REPOSITORY}/downloads/${ID}
+echo "deleted $ID"
 
 exit $?
 

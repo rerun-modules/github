@@ -2,10 +2,10 @@
 #
 #/ command: github:list-repo-deploy-keys: "List repository deploy keys"
 #
-#/ usage: rerun github:list-repo-deploy-keys [ --url <https://api.github.com>]  --owner <>  --repository <> [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
+#/ usage: rerun github:list-repo-deploy-keys  --owner <>  --repository <> [ --api-url <https://api.github.com>] [ --authorization-file <$HOME/.rerun/github.authorization>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: URL OWNER REPOSITORY API_URL AUTHORIZATION_FILE
+#/ option variables: OWNER REPOSITORY API_URL AUTHORIZATION_FILE
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
@@ -31,7 +31,8 @@ set -o nounset -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-githubCurlAPI ${AUTHORIZATION_FILE} ${API_URL} GET /repos/${OWNER}/${REPOSITORY}/keys | jq -r '.response | .[] | .title + ":" + (.id | tostring)'
+# Get the list of keys and format them for easy shell processing.
+curl_github_api ${AUTHORIZATION_FILE} ${API_URL} GET /repos/${OWNER}/${REPOSITORY}/keys | jq -r '.[] | .title + ":" + (.id | tostring)'
 
 exit $?
 

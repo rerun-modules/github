@@ -1,28 +1,36 @@
 #!/usr/bin/env bash
 #
-#/ command: github:create-download: ""Create a new download""
+#/ command: github:create-download: "Create a new download"
 #
-#/ usage: rerun github:create-download [ --content-type|-c <application/zip>] [ --description|-d <>]  --file|-f <>  --owner|-o <>  --repository|-r <> [ --url|-u <https://api.github.com>] 
+#/ usage: rerun github:create-download [ --content-type <application/x-rpm>] [ --description|-d <>]  --file <>  --owner <>  --repository <> [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] 
 #
-#/ variables: CONTENT_TYPE DESCRIPTION FILE OWNER REPOSITORY URL
+#/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
+#/ option variables: CONTENT_TYPE DESCRIPTION FILE OWNER REPOSITORY AUTHORIZATION_FILE API_URL
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
-  echo >&2 "Failed loading function library" ; exit 1 ; 
+  echo >&2 "Failed loading function library." ; exit 1 ; 
 }
+
+# Error handling
+# ---------------
+# * Trap calls `rerun_die` with standard message.
+# * Exit upon command errors or accessing unset variables.
+#   * See [set](http://ss64.com/bash/set.html)
+trap 'rerun_die "*** command failed: github:create-download. ***"' ERR
+set -o nounset -o pipefail
 
 # Parse the command options.
-[ -r $RERUN_MODULE_DIR/commands/create-download/options.sh ] && {
-  . $RERUN_MODULE_DIR/commands/create-download/options.sh || exit 2 ;
+[[ -r $RERUN_MODULE_DIR/commands/create-download/options.sh ]] && {
+    . $RERUN_MODULE_DIR/commands/create-download/options.sh || rerun_die "Failed loading options parser."
+    rerun_options_parse "$@"
 }
-
-# Exit immediately upon non-zero exit. See [set](http://ss64.com/bash/set.html)
-set -e
 
 # ------------------------------
 # Your implementation goes here.
 # ------------------------------
 
+# Prepare the contents to post.
 FILENAME=$(basename $FILE)
 
 if [[ -z $DESCRIPTION ]]
@@ -33,7 +41,6 @@ fi
 SIZE=$(wc -c $FILE | awk '{print $1}')
 
 CONTENT=$(mktemp)
-RESPONSE=$(mktemp)
 
 echo "{
   \"name\": \"$FILENAME\",
@@ -42,14 +49,12 @@ echo "{
   \"content_type\": \"$CONTENT_TYPE\"
 }" > ${CONTENT}
 
-TOKEN=$(cat ~/.rerun/github.authorization | jq -r '.token')
+# Setup the download.
+RESPONSE=$(mktemp)
 
-curl -sfK - > ${RESPONSE} <<!
--X POST
--d @${CONTENT}
---url ${URL}/repos/${OWNER}/${REPOSITORY}/downloads?access_token=${TOKEN}
-!
+curl_github_api ${AUTHORIZATION_FILE} ${API_URL} POST /repos/${OWNER}/${REPOSITORY}/downloads ${CONTENT} > ${RESPONSE}
 
+# Upload the file to Amazon S3.
 KEY=$(cat ${RESPONSE} | jq -r '.path')
 ACL=$(cat ${RESPONSE} | jq -r '.acl')
 NAME=$(cat ${RESPONSE} | jq -r '.name')
@@ -58,7 +63,7 @@ POLICY=$(cat ${RESPONSE} | jq -r '.policy')
 SIGNATURE=$(cat ${RESPONSE} | jq -r '.signature')
 MIME_TYPE=$(cat ${RESPONSE} | jq -r '.mime_type')
 
-curl -sfK - > /dev/null <<!
+curl -sfLK - > /dev/null <<!
 -F "key=${KEY}"
 -F "acl=${ACL}"
 -F "success_action_status=201"
@@ -71,6 +76,7 @@ curl -sfK - > /dev/null <<!
 --url https://github.s3.amazonaws.com/
 !
 
+# Cleanup.
 rm -f ${CONTENT} ${RESPONSE}
 
 exit $?

@@ -16,7 +16,7 @@ it_runs_without_arguments() {
     then
       TMPDIR=$(mktemp -d)
       touch ${TMPDIR}/deleteme-1.0.0-1.noarch.rpm
-      rerun github:create-download -c application/x-rpm -f ${TMPDIR}/deleteme-1.0.0-1.noarch.rpm -o rerun-modules -r github
+      rerun github:create-download --file ${TMPDIR}/deleteme-1.0.0-1.noarch.rpm --owner rerun-modules --repository github
       rerun github:delete-download --file deleteme-1.0.0-1.noarch.rpm --owner rerun-modules --repository github
       rm -rf ${TMPDIR}
     fi

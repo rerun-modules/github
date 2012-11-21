@@ -3,4 +3,4 @@
 # Sun Nov 18 16:10:43 PST 2012
 NAME=delete-repo-deploy-keys
 DESCRIPTION="Delete repository deploy key(s) matching the specified title"
-OPTIONS="url owner repository title"
+OPTIONS="owner repository title api-url authorization-file"

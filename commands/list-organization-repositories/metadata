@@ -3,4 +3,4 @@
 # Sun Nov 18 21:39:13 PST 2012
 NAME=list-organization-repositories
 DESCRIPTION="List repositories for the specified organization."
-OPTIONS="organization url"
+OPTIONS="organization authorization-file api-url"

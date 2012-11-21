@@ -2,10 +2,10 @@
 #
 #/ command: github:list-organization-repositories: "List repositories for the specified organization."
 #
-#/ usage: rerun github:list-organization-repositories  --organization <> [ --url <https://api.github.com>] 
+#/ usage: rerun github:list-organization-repositories  --organization <> [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option variables: ORGANIZATION URL
+#/ option variables: ORGANIZATION AUTHORIZATION_FILE API_URL
 
 # Read module function library.
 . $RERUN_MODULE_DIR/lib/functions.sh || { 
@@ -31,22 +31,8 @@ set -o nounset -o pipefail
 # Your implementation goes here.
 # ------------------------------
 
-
-RESPONSE=$(mktemp)
-
-# List the repositories.
-curl -s ${URL}/orgs/${ORGANIZATION}/repos > ${RESPONSE}
-
-# Check for an API call error.
-if [[ $(cat ${RESPONSE} | jq -r '.[]') = "Not Found" ]]
-then
-  rerun_die "the organization was not found"
-fi
-
-# Display the names and identifiers.
-cat ${RESPONSE} | jq -r '.[] | .name'
-
-rm -f ${RESPONSE}
+# List the repositories associated with the specified organization.
+curl_github_api ${AUTHORIZATION_FILE} ${API_URL} GET /orgs/${ORGANIZATION}/repos | jq -r '.[] | .name'
 
 exit $?
 

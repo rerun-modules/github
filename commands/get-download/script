@@ -2,7 +2,7 @@
 #
 #/ command: github:get-download: "Get a download from the specified repository"
 #
-#/ usage: rerun github:get-download [ --url <https://api.github.com>]  --owner <>  --repository <>  --file <> [ --output <>] 
+#/ usage: rerun github:get-download [ --url <https://github.com>]  --owner <>  --repository <>  --file <> [ --output <>] 
 #
 #/ rerun env variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
 #/ option variables: URL OWNER REPOSITORY FILE OUTPUT
@@ -33,7 +33,7 @@ set -o nounset -o pipefail
 
 [[ -z $OUTPUT ]] && OUTPUT=$FILE
 
-curl -sfL -o $OUTPUT https://github.com/downloads/${OWNER}/${REPOSITORY}/${FILE}
+curl -sfL -o $OUTPUT ${URL}/downloads/${OWNER}/${REPOSITORY}/${FILE}
 
 exit $?
 
