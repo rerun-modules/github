@@ -38,8 +38,8 @@ else
   FILTER="tail -1"
 fi
 
-curl_github_api ${AUTHORIZATION_FILE} ${API_URL} GET /repos/${OWNER}/${REPOSITORY}/downloads | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3 | ${FILTER}
+(curl_github_api ${AUTHORIZATION_FILE} ${API_URL} GET /repos/${OWNER}/${REPOSITORY}/downloads | jq -r '.[] | .name + ":" + .content_type + ":" + (.id | tostring)' | grep ":${CONTENT_TYPE}:" | sort -nt: -k3 | ${FILTER})
 
-exit $?
+exit 0
 
 # Done
