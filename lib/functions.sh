@@ -111,7 +111,7 @@ EOF
   # Check the status code:
   local STATUS=$(tail -1 ${RESPONSE})
   [[ ${STATUS} -eq 422 ]] && rerun_die "${STATUS}: $(cat ${RESPONSE} | sed '$d' | jq -r '.errors | .[] | .message';rm -f ${RESPONSE})"
-  [[ ${STATUS} -ge 400 && ${STATUS} -lt 499 ]] && rerun_die "${STATUS}: $(cat ${RESPONSE} | sed '$d' | jq -r '.message';rm -f ${RESPONSE})"
+  [[ ${STATUS} -ge 400 && ${STATUS} -le 500 ]] && rerun_die "${STATUS}: $(cat ${RESPONSE} | sed '$d' | jq -r '.message';rm -f ${RESPONSE})"
 
   # Print the response data without the last line.
   sed '$d' < ${RESPONSE}
