@@ -1,0 +1,350 @@
+.TH github 1 "Mon Nov 26 13:46:13 PST 2012" "Version 1" "Rerun User Manual" 
+.SH NAME
+github \- "Rerun module to manage working with Github"
+.PP
+.SH SYNOPSIS
+.PP
+\f[CR] 
+rerun [ARGS] github: [ create-download | create-repo-deploy-key | delete-download | delete-repo-deploy-keys | get-authorization-token | get-download | list-downloads | list-organization-repositories | list-repo-deploy-keys ] [OPTIONS]
+\f[]
+.SH COMMANDS
+.SH github:create-download \f[][--content-type <application/x-rpm>] [--description <>] --file <> --owner <> --repository <> [--authorization-file <'$HOME/.rerun/github.authorization'>] [--api-url <https://api.github.com>] [--force <false>]
+"Create a new download"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--content-type \f[]"File content (mime) type"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]application/x-rpm\f[]
+.RS
+.RE
+.TP
+.B \--description \f[]"Download file description"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--file \f[]"Download file name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.TP
+.B \--force \f[]"Force command to succeed"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]false\f[]
+.RS
+.RE
+.SH github:create-repo-deploy-key \f[]--owner <> --repository <> [--title <'${USER}@${HOSTNAME}'>] [--key-file <'$HOME/.ssh/id_dsa.pub'>] [--api-url <https://api.github.com>] [--authorization-file <'$HOME/.rerun/github.authorization'>]
+"Create a repository deploy key"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--title \f[]"Repository deploy key title"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'${USER}@${HOSTNAME}'\f[]
+.RS
+.RE
+.TP
+.B \--key-file \f[]"Repository deploy key file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.ssh/id_dsa.pub'\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.SH github:delete-download \f[]--file <> --owner <> --repository <> [--force <false>] [--authorization-file <'$HOME/.rerun/github.authorization'>] [--api-url <https://api.github.com>]
+"Delete a download"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--file \f[]"Download file name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--force \f[]"Force command to succeed"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]false\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.SH github:delete-repo-deploy-keys \f[]--owner <> --repository <> [--title <'${USER}@${HOSTNAME}'>] [--api-url <https://api.github.com>] [--authorization-file <'$HOME/.rerun/github.authorization'>]
+"Delete repository deploy key(s) matching the specified title"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--title \f[]"Repository deploy key title"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'${USER}@${HOSTNAME}'\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.SH github:get-authorization-token \f[][--api-url <https://api.github.com>] [--authorization-file <'$HOME/.rerun/github.authorization'>]
+"Get an authorization token to access the API"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.SH github:get-download \f[][--url <https://github.com>] --owner <> --repository <> --file <> [--output <>]
+"Get a download from the specified repository"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--url \f[]"GitHub web site URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://github.com\f[]
+.RS
+.RE
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--file \f[]"Download file name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--output \f[]"Output file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.SH github:list-downloads \f[]--owner <> --repository <> [--content-type <application/x-rpm>] [--latest <false>] [--api-url <https://api.github.com>] [--authorization-file <'$HOME/.rerun/github.authorization'>]
+"List downloads for a repository"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--content-type \f[]"File content (mime) type"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]application/x-rpm\f[]
+.RS
+.RE
+.TP
+.B \--latest \f[]"Select the latest download"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]false\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.SH github:list-organization-repositories \f[]--organization <> [--authorization-file <'$HOME/.rerun/github.authorization'>] [--api-url <https://api.github.com>]
+"List repositories for the specified organization."
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--organization \f[]"Organization name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.SH github:list-repo-deploy-keys \f[]--owner <> --repository <> [--api-url <https://api.github.com>] [--authorization-file <'$HOME/.rerun/github.authorization'>]
+"List repository deploy keys"
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--owner \f[]"Repository owner (user or organization)"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--repository \f[]"Repository name"\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--api-url \f[]"Github API URL"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]https://api.github.com\f[]
+.RS
+.RE
+.TP
+.B \--authorization-file \f[]"GitHub API authorization file"\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]'$HOME/.rerun/github.authorization'\f[]
+.RS
+.RE
+.SH RETURN VALUES
+.PP
+Successful completion: 0
+.SH AUTHORS
+anthony
+.SH "SEE ALSO"
+rerun
+.SH KEYWORDS
+github
