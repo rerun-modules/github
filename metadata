@@ -4,4 +4,4 @@ NAME=github
 DESCRIPTION="Rerun module to manage working with Github"
 VERSION=1.0.1
 REQUIRES=
-
+EXTERNALS=git,jq
