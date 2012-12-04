@@ -10,7 +10,7 @@
 # and show its options.
 # 
 #/ command: github:create-web-hook: "Create a web hook in the designated repository"
-#/ usage: rerun github:create-web-hook  --owner <>  --repository <>  --web-hook-url <> [ --web-hook-event <push>] [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] 
+#/ usage: rerun github:create-web-hook  --owner <>  --repository <>  --web-hook-url <> [ --web-hook-event <push>] [ --authorization-file <$HOME/.rerun/github.authorization>] [ --api-url <https://api.github.com>] [ --replace <false>] 
 
 # Load common functions
 # ---------------------
@@ -47,7 +47,7 @@ set -o nounset -o pipefail
 # declared by `rerun` or by the option parser function.
 
 #/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option-variables: OWNER REPOSITORY WEB_HOOK_URL WEB_HOOK_EVENT AUTHORIZATION_FILE API_URL
+#/ option-variables: OWNER REPOSITORY WEB_HOOK_URL WEB_HOOK_EVENT AUTHORIZATION_FILE API_URL REPLACE
 
 # The `rerun_options_parse` function processes the command line
 # arguments. Each accepted command line flag results in setting 
@@ -62,6 +62,12 @@ rerun_options_parse "$@"
 # - - -
 # Put the command implementation here.
 # - - -
+
+# Delete existing instance of the web hook url if required.
+if [[ $REPLACE = "true" ]]
+then
+  rerun github:delete-web-hook --owner ${OWNER} --repository ${REPOSITORY} --web-hook-url "${WEB_HOOK_URL}"
+fi
 
 # Prepare the content to post.
 CONTENT=$(mktemp)
